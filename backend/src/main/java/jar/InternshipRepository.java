@@ -1,7 +1,6 @@
 package jar;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,9 +15,9 @@ public interface InternshipRepository extends JpaRepository<Internship, Long> {
     Optional<Internship> findByExternalLink(String externalLink);
 
     /**
-     * Find internships by organization
+     * Find internships by company
      */
-    List<Internship> findByOrganization(String organization);
+    List<Internship> findByCompany(String company);
 
     /**
      * Search internships by title (case-insensitive)

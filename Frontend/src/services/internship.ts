@@ -5,19 +5,32 @@ import { Internship, MatchResult } from '../app/types';
  * Wrapper around axios calls for internship-related backend operations
  */
 
+/** Safely normalize skills to a string array regardless of backend shape */
+function normalizeSkills(skills: unknown): string[] {
+  if (!skills) return [];
+  if (Array.isArray(skills)) return (skills as any[]).map(s => String(s).trim()).filter(Boolean);
+  if (typeof skills === 'string') return skills.split(/,\s*/).map(s => s.trim()).filter(Boolean);
+  return [];
+}
+
+/** Apply skills normalization to a raw internship object */
+function normalizeInternship(item: any): Internship {
+  return { ...item, skills: normalizeSkills(item.skills) } as Internship;
+}
+
 export const fetchInternshipById = async (id: string | number): Promise<Internship> => {
   const response = await api.get(`/internships/${id}`);
-  return response.data.data as Internship;
+  return normalizeInternship(response.data.data);
 };
 
 export const fetchAllInternships = async (): Promise<Internship[]> => {
   const response = await api.get('/internships');
-  return response.data.data as Internship[];
+  return (response.data.data as any[]).map(normalizeInternship);
 };
 
 export const fetchSavedInternships = async (): Promise<Internship[]> => {
   const response = await api.get('/saved-internships');
-  return response.data.data as Internship[];
+  return (response.data.data as any[]).map(normalizeInternship);
 };
 
 export const checkInternshipSaved = async (id: string | number): Promise<boolean> => {
@@ -38,11 +51,11 @@ export const fetchMatchedInternships = async (): Promise<MatchResult[]> => {
   const data = response.data.data as any[];
   // convert to MatchResult shape
   return data.map(item => ({
-    internship: {
+    internship: normalizeInternship({
       ...item,
       // backend uses "organization" instead of "company"
       company: item.organization || item.company,
-    } as Internship,
+    }),
     matchScore: item.score ?? 0,
   }));
 };
@@ -69,10 +82,10 @@ export const fetchDashboardData = async (): Promise<{
   }).filter(Boolean);
 
   const matchResults: MatchResult[] = matches.map(item => ({
-    internship: {
+    internship: normalizeInternship({
       ...item,
       company: item.organization || item.company,
-    } as Internship,
+    }),
     matchScore: item.score ?? 0,
   }));
 

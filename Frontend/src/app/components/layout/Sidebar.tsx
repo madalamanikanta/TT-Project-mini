@@ -27,7 +27,6 @@ const adminMenuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
   { icon: Briefcase, label: 'Manage Internships', path: '/admin/internships' },
   { icon: Users, label: 'Manage Users', path: '/admin/users' },
-  { icon: Settings, label: 'Settings', path: '/admin/settings' },
 ];
 
 export function Sidebar({ userRole }: SidebarProps) {

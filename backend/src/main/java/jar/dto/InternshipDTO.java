@@ -19,9 +19,14 @@ import java.util.Set;
 public class InternshipDTO {
     private Long id;
     private String title;
-    private String organization;
+    private String company;
     private String source;
     private String externalLink;
+    private String location;
+    private String description;
+    private String duration;
+    private String stipend;
+    private String deadline;
     private LocalDateTime createdAt;
     private Set<SkillDTO> skills;
     

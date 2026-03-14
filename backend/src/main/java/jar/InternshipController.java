@@ -100,20 +100,20 @@ public class InternshipController {
      * GET /api/internships/company/{company}
      * Get internships by company
      */
-    @GetMapping("/organization/{organization}")
-    public ResponseEntity<?> getInternshipsByOrganization(@PathVariable String organization) {
+    @GetMapping("/company/{company}")
+    public ResponseEntity<?> getInternshipsByCompany(@PathVariable String company) {
         try {
-            List<Internship> internships = internshipService.getInternshipsByOrganization(organization);
+            List<Internship> internships = internshipService.getInternshipsByCompany(company);
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
-            response.put("organization", organization);
+            response.put("company", company);
             response.put("count", internships.size());
             response.put("data", internships);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            logger.error("Error fetching internships by organization", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(createErrorResponse("Error fetching internships: " + e.getMessage()));
+            logger.error("Error fetching internships by company", e);
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("success", false, "error", e.getMessage()));
         }
     }
 

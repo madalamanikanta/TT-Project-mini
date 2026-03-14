@@ -92,6 +92,19 @@ public class ApiAdminController {
         return ResponseEntity.ok(internships);
     }
 
+    @org.springframework.web.bind.annotation.PostMapping("/internships")
+    public ResponseEntity<?> createInternship(@org.springframework.web.bind.annotation.RequestBody jar.dto.CreateInternshipDTO dto) {
+        try {
+            jar.dto.InternshipDTO result = internshipService.createInternship(dto);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Error creating internship", e);
+            return ResponseEntity.internalServerError().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
     @GetMapping("/settings")
     public ResponseEntity<Map<String, Object>> getSettings() {
         // Return dynamic simulated settings 

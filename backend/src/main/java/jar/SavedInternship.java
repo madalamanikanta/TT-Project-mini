@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SuppressWarnings("serial")
 public class SavedInternship {
 
     private static final long serialVersionUID = 1L;

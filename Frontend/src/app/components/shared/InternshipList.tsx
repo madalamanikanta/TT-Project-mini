@@ -11,10 +11,17 @@ interface BackendInternship {
   title: string;
   company: string;
   location: string;
-  skills: string;
+  skills: string | string[];
   source: string;
   externalJobId: string;
   createdAt: string;
+}
+
+/** Safely normalize skills to a string array regardless of backend shape */
+function normalizeSkills(skills: string | string[] | undefined | null): string[] {
+  if (!skills) return [];
+  if (Array.isArray(skills)) return skills.map(s => String(s).trim()).filter(Boolean);
+  return String(skills).split(/,\s*/).map(s => s.trim()).filter(Boolean);
 }
 
 interface InternshipListProps {
@@ -215,21 +222,26 @@ export function InternshipList({ onFetchComplete }: InternshipListProps) {
                   Required Skills:
                 </p>
                 <div className="flex flex-wrap gap-1">
-                  {internship.skills &&
-                    internship.skills.split(', ').slice(0, 3).map((skill, idx) => (
-                      <Badge
-                        key={idx}
-                        className="text-xs bg-blue-100 text-blue-800 hover:bg-blue-100"
-                      >
-                        {skill.trim()}
-                      </Badge>
-                    ))}
-                  {internship.skills &&
-                    internship.skills.split(', ').length > 3 && (
-                      <Badge className="text-xs bg-gray-100 text-gray-800 hover:bg-gray-100">
-                        +{internship.skills.split(', ').length - 3} more
-                      </Badge>
-                    )}
+                  {(() => {
+                    const skillList = normalizeSkills(internship.skills);
+                    return (
+                      <>
+                        {skillList.slice(0, 3).map((skill, idx) => (
+                          <Badge
+                            key={idx}
+                            className="text-xs bg-blue-100 text-blue-800 hover:bg-blue-100"
+                          >
+                            {skill}
+                          </Badge>
+                        ))}
+                        {skillList.length > 3 && (
+                          <Badge className="text-xs bg-gray-100 text-gray-800 hover:bg-gray-100">
+                            +{skillList.length - 3} more
+                          </Badge>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
 

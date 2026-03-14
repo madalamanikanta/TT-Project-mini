@@ -11,16 +11,20 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
   const token = localStorage.getItem('token');
-  const role = localStorage.getItem('role');
+  const userJson = localStorage.getItem('user');
+  const user = userJson ? JSON.parse(userJson) : null;
+  const location = useLocation();
+
+  const redirectPath = requiredRole === 'admin' ? '/admin/login' : '/login';
 
   if (!token) {
-    const redirectPath = requiredRole === 'admin' ? '/admin/login' : '/login';
-    return <Navigate to={redirectPath} replace />;
+    return <Navigate to={redirectPath} replace state={{ from: location }} />;
   }
 
   if (requiredRole === 'admin') {
-    if (role !== 'ADMIN' && role !== 'ROLE_ADMIN') {
-      return <Navigate to="/student/dashboard" replace />;
+    const role = (user?.role || '').toString().toLowerCase();
+    if (role !== 'admin') {
+      return <Navigate to={redirectPath} replace state={{ from: location }} />;
     }
   }
 

@@ -12,7 +12,6 @@ import AdminDashboard from './pages/admin/Dashboard';
 import AdminLogin from './pages/admin/Login';
 import ManageInternships from './pages/admin/ManageInternships';
 import ManageUsers from './pages/admin/ManageUsers';
-import Settings from './pages/admin/Settings';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export const router = createBrowserRouter([
@@ -93,14 +92,6 @@ export const router = createBrowserRouter([
     element: (
       <ProtectedRoute requiredRole="admin">
         <ManageUsers />
-      </ProtectedRoute>
-    ),
-  },
-  {
-    path: '/admin/settings',
-    element: (
-      <ProtectedRoute requiredRole="admin">
-        <Settings />
       </ProtectedRoute>
     ),
   },

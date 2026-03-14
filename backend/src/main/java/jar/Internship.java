@@ -15,12 +15,13 @@ import java.util.Set;
 @Table(name = "internships",
        indexes = {
            @Index(name = "idx_internships_title", columnList = "title"),
-           @Index(name = "idx_internships_organization", columnList = "organization")
+           @Index(name = "idx_internships_company", columnList = "company")
        })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@SuppressWarnings("serial")
 public class Internship {
 
     private static final long serialVersionUID = 1L;
@@ -33,14 +34,25 @@ public class Internship {
     @Column(nullable = false)
     private String title;
 
-    @NotBlank(message = "Organization is required")
+    @NotBlank(message = "Company is required")
     @Column(nullable = false)
-    private String organization;
+    private String company;
 
     private String source;
 
     @Column(name = "external_link")
     private String externalLink;
+
+    private String location;
+
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    private String duration;
+
+    private String stipend;
+
+    private String deadline;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

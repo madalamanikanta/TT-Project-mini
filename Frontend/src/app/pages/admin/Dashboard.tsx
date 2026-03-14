@@ -3,17 +3,21 @@ import { Sidebar } from '../../components/layout/Sidebar';
 import { StatsCard } from '../../components/shared/StatsCard';
 import { InternshipList } from '../../components/shared/InternshipList';
 import { Users, Briefcase, TrendingUp, CheckCircle } from 'lucide-react';
-import { AdminDashboardData, fetchAdminDashboard } from '../../../services/admin';
+import api from '../../../services/api';
 
 export default function AdminDashboard() {
-  const [dashboard, setDashboard] = useState<AdminDashboardData | null>(null);
+  const [dashboard, setDashboard] = useState<{
+    totalUsers: number;
+    totalAdmins: number;
+    totalStudents: number;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
       try {
-        const data = await fetchAdminDashboard();
-        setDashboard(data);
+        const response = await api.get('/admin/dashboard');
+        setDashboard(response.data);
       } catch (err: any) {
         setError(err?.response?.data?.error || 'Unable to load dashboard');
       }
@@ -49,7 +53,7 @@ export default function AdminDashboard() {
             />
             <StatsCard
               title="Total Internships"
-              value={dashboard?.totalInternships?.toString() ?? '...'}
+              value="---"
               icon={Briefcase}
               trend="+12%"
               description="Active listings"
@@ -81,7 +85,13 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-lg border border-gray-200 p-6 mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Activity</h2>
             <div className="space-y-4">
-              {dashboard?.recentActivity?.map((activity, index) => (
+              {[
+                { action: 'New user registered', user: 'rahul@example.com', time: '5 minutes ago' },
+                { action: 'Internship posted', user: 'Google - Frontend Developer', time: '1 hour ago' },
+                { action: 'Application submitted', user: 'priya@example.com', time: '2 hours ago' },
+                { action: 'New user registered', user: 'amit@example.com', time: '3 hours ago' },
+                { action: 'Internship updated', user: 'Microsoft - Data Science', time: '5 hours ago' }
+              ].map((activity, index) => (
                 <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                   <div>
                     <p className="text-gray-900 font-medium">{activity.action}</p>
@@ -90,9 +100,6 @@ export default function AdminDashboard() {
                   <span className="text-gray-500 text-sm">{activity.time}</span>
                 </div>
               ))}
-              {(!dashboard?.recentActivity || dashboard.recentActivity.length === 0) && (
-                <p className="text-gray-500">No recent activity.</p>
-              )}
             </div>
           </div>
 

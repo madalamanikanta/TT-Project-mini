@@ -125,24 +125,72 @@ public class InternshipService {
             }
 
             String title = jobNode.path("job_title").asText("Not specified");
-String organization = jobNode.path("employer_name").asText("Not specified");
-                    String jobDescription = jobNode.path("job_description").asText("");
+            String company = jobNode.path("employer_name").asText("Not specified");
+            String jobDescription = jobNode.path("job_description").asText("");
                     
-                    // Extract skills from job description (simple extraction)
-                    String skillString = extractSkills(jobDescription);
+            // Extract skills from job description (simple extraction)
+            extractSkills(jobDescription);
                     
-                    Internship internship = Internship.builder()
-                            .title(title)
-                            .organization(organization)
-                            .source("JSearch")
-                            .externalLink(jobId)
-                            .build();
+            Internship internship = Internship.builder()
+                    .title(title)
+                    .company(company)
+                    .source("JSearch")
+                    .externalLink(jobId)
+                    .build();
             
             return internship;
         } catch (Exception e) {
             logger.error("Error mapping job to internship", e);
             return null;
         }
+    }
+
+    /**
+     * Extract skills from job description (simple regex-based extraction)
+     */
+    @Autowired
+    private SkillRepository skillRepository;
+
+    /**
+     * Create internship using provided DTO logic
+     */
+    public jar.dto.InternshipDTO createInternship(jar.dto.CreateInternshipDTO dto) {
+        if (dto.getTitle() == null || dto.getTitle().trim().isEmpty() ||
+            dto.getCompany() == null || dto.getCompany().trim().isEmpty()) {
+            throw new IllegalArgumentException("Title and Company are required.");
+        }
+
+        Internship internship = new Internship();
+        internship.setTitle(dto.getTitle());
+        internship.setCompany(dto.getCompany());
+        internship.setLocation(dto.getLocation());
+        internship.setDescription(dto.getDescription());
+        internship.setDuration(dto.getDuration());
+        internship.setStipend(dto.getStipend());
+        internship.setDeadline(dto.getDeadline());
+        internship.setExternalLink(dto.getExternalLink());
+        internship.setSource("admin");
+
+        Internship saved = internshipRepository.save(internship);
+
+        String skillsStr = dto.getSkills();
+        if (skillsStr != null && !skillsStr.trim().isEmpty()) {
+            String[] skillArray = skillsStr.split(",");
+            for (String sk : skillArray) {
+                String trimmed = sk.trim();
+                if (!trimmed.isEmpty()) {
+                    Skill skill = skillRepository.findByNameIgnoreCase(trimmed).orElseGet(() -> {
+                        Skill newSkill = new Skill();
+                        newSkill.setName(trimmed);
+                        return skillRepository.save(newSkill);
+                    });
+                    skill.getInternships().add(saved);
+                    skillRepository.save(skill);
+                }
+            }
+        }
+
+        return convertToDTO(saved, 0);
     }
 
     /**
@@ -186,8 +234,8 @@ String organization = jobNode.path("employer_name").asText("Not specified");
     /**
      * Get internships by company
      */
-    public List<Internship> getInternshipsByOrganization(String organization) {
-        return internshipRepository.findByOrganization(organization);
+    public List<Internship> getInternshipsByCompany(String company) {
+        return internshipRepository.findByCompany(company);
     }
 
 
@@ -345,9 +393,14 @@ String organization = jobNode.path("employer_name").asText("Not specified");
         return jar.dto.InternshipDTO.builder()
                 .id(internship.getId())
                 .title(internship.getTitle())
-                .organization(internship.getOrganization())
+                .company(internship.getCompany())
                 .source(internship.getSource())
                 .externalLink(internship.getExternalLink())
+                .location(internship.getLocation())
+                .description(internship.getDescription())
+                .duration(internship.getDuration())
+                .stipend(internship.getStipend())
+                .deadline(internship.getDeadline())
                 .createdAt(internship.getCreatedAt())
                 .skills(skillDTOs)
                 .score(score)
